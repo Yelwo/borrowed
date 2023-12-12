@@ -29,5 +29,5 @@ class Migration(migrations.Migration):
             name='owner',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lent_set_old', to='objects.userprofile'),
         ),
-        migrations.RunPython(move_owner_to_object,migrations.RunPython.noop),
+        migrations.RunPython(move_owner_to_object, migrations.RunPython.noop),
     ]

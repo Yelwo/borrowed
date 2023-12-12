@@ -22,25 +22,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class ObjectSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(queryset=models.UserProfile.objects.all())
+
     class Meta:
         model = models.Object
-        fields = ["type", "notes"]
+        fields = ["owner", "type", "notes"]
 
 
 class BorrowSerializer(serializers.ModelSerializer):
-    owner = serializers.PrimaryKeyRelatedField(queryset=models.UserProfile.objects.all())
     borrower = serializers.PrimaryKeyRelatedField(allow_null=True, queryset=models.UserProfile.objects.all())
     object = ObjectSerializer()
-
-    def create(self, validated_data):
-        object = models.Object.objects.create(**validated_data.pop('object'))
-        borrow = models.Borrow.objects.create(object=object, **validated_data)
-        return borrow
 
     class Meta:
         model = models.Borrow
         fields = [
-            "owner", 
             "borrower", 
             "borrowing_date", 
             "due_date",
