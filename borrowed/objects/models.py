@@ -12,7 +12,7 @@ class UserProfile(models.Model):
 
 class Object(models.Model):
     type = models.CharField(max_length=255, blank=False, null=False)
-    notes = models.CharField(max_length=255, default='', null=False)
+    notes = models.CharField(max_length=255, default='', null=False, blank=True)
 
     def __str__(self):
         return self.type
@@ -25,7 +25,7 @@ class Borrow(models.Model):
     due_date = models.DateField(blank=True, null=True, editable=True)
     status = models.CharField(max_length=255, blank=False, null=False, default='borrowed')
     object = models.ForeignKey(Object, on_delete=models.PROTECT, null=False)
-    notes = models.CharField(max_length=255, default='', null=False)
+    notes = models.CharField(max_length=255, default='', null=False, blank=True)
 
     def __str__(self) -> str:
         return f"{self.object.type}: {self.borrowing_date} - {self.due_date}"
