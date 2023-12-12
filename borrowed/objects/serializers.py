@@ -33,7 +33,6 @@ class BorrowSerializer(serializers.ModelSerializer):
     object = ObjectSerializer()
 
     def create(self, validated_data):
-        print(validated_data)
         object = models.Object.objects.create(**validated_data.pop('object'))
         borrow = models.Borrow.objects.create(object=object, **validated_data)
         return borrow

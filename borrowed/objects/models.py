@@ -13,13 +13,13 @@ class UserProfile(models.Model):
 class Object(models.Model):
     type = models.CharField(max_length=255, blank=False, null=False)
     notes = models.CharField(max_length=255, default='', null=False, blank=True)
+    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='lent_set')
 
     def __str__(self):
         return self.type
 
 
 class Borrow(models.Model):
-    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='lent_set')
     borrower = models.ForeignKey(UserProfile, on_delete=models.PROTECT, null=True)
     borrowing_date = models.DateField(blank=True, null=True, editable=True)
     due_date = models.DateField(blank=True, null=True, editable=True)
