@@ -29,9 +29,18 @@ class ObjectSerializer(serializers.ModelSerializer):
         fields = ["owner", "type", "notes"]
 
 
+class ObjectPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+    def get_queryset(self):
+        request = self.context.get('request', None)
+        objects = super().get_queryset()
+        if not objects or not request:
+            return None
+        return objects.filter(owner__user=request.user)
+
+
 class BorrowSerializer(serializers.ModelSerializer):
     borrower = serializers.PrimaryKeyRelatedField(allow_null=True, queryset=models.UserProfile.objects.all())
-    object = ObjectSerializer()
+    object = ObjectPrimaryKeyRelatedField(allow_null=False, queryset=models.Object.objects)
 
     class Meta:
         model = models.Borrow
