@@ -40,7 +40,7 @@ class ObjectPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
 
 class BorrowSerializer(serializers.ModelSerializer):
     borrower = serializers.PrimaryKeyRelatedField(allow_null=True, queryset=models.UserProfile.objects.all())
-    object = ObjectPrimaryKeyRelatedField(allow_null=False, queryset=models.Object.objects)
+    object = ObjectPrimaryKeyRelatedField(allow_null=False, queryset=models.Object.objects.all())
 
     class Meta:
         model = models.Borrow

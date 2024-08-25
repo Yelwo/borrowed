@@ -11,11 +11,7 @@ class ObjectViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        borrowed_object_ids = models.Borrow.objects.filter(status='borrowed', borrower__user=self.request.user).values_list('object_id', flat=True)
-        lent_object_ids = models.Borrow.objects.filter(status='borrowed', object__owner__user=self.request.user).values_list('object_id', flat=True)
-        return models.Object.objects.filter(
-            Q(owner__user=self.request.user) & ~Q(id__in=lent_object_ids) | Q(id__in=borrowed_object_ids)
-        )
+        return models.Object.objects.my_objects(self.request.user)
 
 
 class BorrowViewSet(
