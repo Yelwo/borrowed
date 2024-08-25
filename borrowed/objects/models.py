@@ -16,7 +16,7 @@ class Object(models.Model):
     owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='lent_set')
 
     def __str__(self):
-        return self.type
+        return f"{self.type} {self.owner}"
 
 
 class Borrow(models.Model):

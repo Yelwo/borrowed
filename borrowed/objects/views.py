@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import permissions, viewsets, mixins, response, status
 from rest_framework.decorators import action
 
@@ -10,7 +11,11 @@ class ObjectViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return models.Object.objects.filter(owner__user=self.request.user)
+        borrowed_object_ids = models.Borrow.objects.filter(status='borrowed', borrower__user=self.request.user).values_list('object_id', flat=True)
+        lent_object_ids = models.Borrow.objects.filter(status='borrowed', object__owner__user=self.request.user).values_list('object_id', flat=True)
+        return models.Object.objects.filter(
+            Q(owner__user=self.request.user) & ~Q(id__in=lent_object_ids) | Q(id__in=borrowed_object_ids)
+        )
 
 
 class BorrowViewSet(
