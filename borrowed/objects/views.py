@@ -1,4 +1,3 @@
-from django.db.models import Q
 from rest_framework import permissions, viewsets, mixins, response, status
 from rest_framework.decorators import action
 
@@ -36,6 +35,19 @@ class BorrowViewSet(
         serializer = self.get_serializer(borrowed, many=True)
         return response.Response(serializer.data)
     
+    @action(detail=False, methods=["post"])
+    def borrow(self, request):
+        borrow = self.get_serializer(data=request.data)
+        borrow.is_valid()
+        if borrow.validated_data['borrower'].user.id == self.request.user.id:
+            return response.Response({"borrower": "You can't borrow your own items"}, status=status.HTTP_400_BAD_REQUEST)
+        if borrow.validated_data['object'].owner.user.id != self.request.user.id:
+            return response.Response({"object": "Logged in user is not an owner"}, status=status.HTTP_400_BAD_REQUEST)
+        if models.Borrow.objects.filter(object=borrow.validated_data['object'], status='Borrowed'):
+            return response.Response({"object": "Object has been already borrowed"}, status=status.HTTP_400_BAD_REQUEST)
+        borrow.save()
+        return response.Response(borrow.data)
+
     @action(detail=True, methods=["put"])
     def return_borrowed_object(self, request, pk=None):
         borrowed = self.get_object()
