@@ -59,7 +59,6 @@ class BorrowViewSet(
         serializer = self.get_serializer(borrowed)
         return response.Response(serializer.data)
 
-
     def get_queryset(self):
         lent = models.Borrow.objects.filter(object__owner__user=self.request.user)
         borrowed = models.Borrow.objects.filter(borrower__user=self.request.user)

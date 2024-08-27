@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 django = "*"
+pytest = "*"
+pytest-django = "*"
+pytest-factoryboy = "*"
 
 [dev-packages]
 
