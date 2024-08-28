@@ -1,4 +1,5 @@
 import factory
+import factory.fuzzy
 
 from objects import models
 
@@ -17,6 +18,23 @@ class UserProfileFactory(factory.django.DjangoModelFactory):
 
 class ObjectFactory(factory.django.DjangoModelFactory):
     owner = factory.SubFactory(UserProfileFactory)
+    type = factory.Faker('words')
 
     class Meta:
         model = models.Object
+
+class BorrowFactory(factory.django.DjangoModelFactory):
+    borrower = factory.SubFactory(UserProfileFactory)
+    borrowing_date = factory.Faker('date')
+    due_date = factory.Faker('date')
+    status = factory.fuzzy.FuzzyChoice(['Borrowed', 'Returned'])
+    object = factory.SubFactory(ObjectFactory)
+
+    @classmethod
+    def _adjust_kwargs(cls, **kwargs):
+        if kwargs['status'] == 'Returned':
+            kwargs['borrower'] = None
+        return kwargs
+
+    class Meta:
+        model = models.Borrow
