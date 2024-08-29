@@ -10,7 +10,7 @@ class ObjectViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return models.Object.objects.my_objects(self.request.user)
+        return models.Object.objects.filter(owner__user=self.request.user)
 
 
 class BorrowViewSet(

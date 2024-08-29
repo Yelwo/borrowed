@@ -27,12 +27,12 @@ class BorrowFactory(factory.django.DjangoModelFactory):
     borrower = factory.SubFactory(UserProfileFactory)
     borrowing_date = factory.Faker('date')
     due_date = factory.Faker('date')
-    status = factory.fuzzy.FuzzyChoice(['Borrowed', 'Returned'])
+    status = factory.fuzzy.FuzzyChoice(['borrowed', 'returned'])
     object = factory.SubFactory(ObjectFactory)
 
     @classmethod
     def _adjust_kwargs(cls, **kwargs):
-        if kwargs['status'] == 'Returned':
+        if kwargs['status'] == 'returned':
             kwargs['borrower'] = None
         return kwargs
 
