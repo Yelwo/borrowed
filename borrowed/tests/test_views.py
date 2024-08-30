@@ -1,5 +1,5 @@
+import datetime
 import pytest
-
 from django.urls import reverse
 
 from objects import serializers
@@ -83,3 +83,74 @@ class TestBorrows:
         response = client.get(url)
 
         assert response.data == []
+
+    def test_borrow(self, client, user_profile_factory, object_factory):
+        borrower = user_profile_factory()
+        object = object_factory()
+        data = {
+            'borrower': borrower.pk,
+            'borrowing_date': str(datetime.date.today()),
+            'due_date': str(datetime.date.today() + datetime.timedelta(days=3)),
+            'object': object.pk,
+        }
+
+        client.force_login(object.owner.user)
+        url = reverse('borrows-borrow')
+        response = client.post(url, data=data)
+        
+        data['status'] = 'borrowed'
+        data['notes'] = ''
+        assert response.data == data
+
+    def test_cant_create_returned_borrow(self, client, user_profile_factory, object_factory):
+        borrower = user_profile_factory()
+        object = object_factory()
+        data = {
+            'borrower': borrower.pk,
+            'borrowing_date': str(datetime.date.today()),
+            'due_date': str(datetime.date.today() + datetime.timedelta(days=3)),
+            'object': object.pk,
+            'status': 'returned',
+        }
+
+        client.force_login(object.owner.user)
+        url = reverse('borrows-borrow')
+        response = client.post(url, data=data)
+        
+        assert response.status_code == 400
+        assert response.data == {"status": "You can't create returned borrow"}
+    
+    def test_user_cant_borrow_their_own_items(self, client, user_profile_factory, object_factory):
+        borrower = user_profile_factory()
+        object = object_factory(owner=borrower)
+        data = {
+            'borrower': borrower.pk,
+            'borrowing_date': str(datetime.date.today()),
+            'due_date': str(datetime.date.today() + datetime.timedelta(days=3)),
+            'object': object.pk,
+        }
+
+        client.force_login(object.owner.user)
+        url = reverse('borrows-borrow')
+        response = client.post(url, data=data)
+        
+        assert response.status_code == 400
+        assert response.data == {"borrower": "You can't borrow your own items"}
+
+    def test_object_is_already_borrowed(self, client, user_profile_factory, object_factory, borrow_factory):
+        borrower = user_profile_factory()
+        object = object_factory()
+        borrow_factory(status='borrowed', object=object)
+        data = {
+            'borrower': borrower.pk,
+            'borrowing_date': str(datetime.date.today()),
+            'due_date': str(datetime.date.today() + datetime.timedelta(days=3)),
+            'object': object.pk,
+        }
+
+        client.force_login(object.owner.user)
+        url = reverse('borrows-borrow')
+        response = client.post(url, data=data)
+        
+        assert response.status_code == 400
+        assert response.data == {"object": "Object has been already borrowed"}

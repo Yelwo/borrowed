@@ -39,11 +39,11 @@ class BorrowViewSet(
     def borrow(self, request):
         borrow = self.get_serializer(data=request.data)
         borrow.is_valid()
+        if borrow.validated_data.get('status') == 'returned':
+            return response.Response({"status": "You can't create returned borrow"}, status=status.HTTP_400_BAD_REQUEST)
         if borrow.validated_data['borrower'].user.id == self.request.user.id:
             return response.Response({"borrower": "You can't borrow your own items"}, status=status.HTTP_400_BAD_REQUEST)
-        if borrow.validated_data['object'].owner.user.id != self.request.user.id:
-            return response.Response({"object": "Logged in user is not an owner"}, status=status.HTTP_400_BAD_REQUEST)
-        if models.Borrow.objects.filter(object=borrow.validated_data['object'], status='Borrowed'):
+        if models.Borrow.objects.filter(object=borrow.validated_data['object'], status='borrowed'):
             return response.Response({"object": "Object has been already borrowed"}, status=status.HTTP_400_BAD_REQUEST)
         borrow.save()
         return response.Response(borrow.data)
@@ -54,7 +54,7 @@ class BorrowViewSet(
         if borrowed.borrower.user.id != self.request.user.id:
             return response.Response({"borrower": "Logged in user is not a borrower"}, status=status.HTTP_400_BAD_REQUEST)
         borrowed.borrower = None
-        borrowed.status = "Returned"
+        borrowed.status = 'returned'
         borrowed.save()
         serializer = self.get_serializer(borrowed)
         return response.Response(serializer.data)
