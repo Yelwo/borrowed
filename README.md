@@ -1,8 +1,8 @@
-## Borrowed
+# Borrowed
 
 Backend for an app that allows users to list items that they lent to someone and which they own, but also the ones which they borrowed.
 
-# Usage
+## Usage
 
 To register an object, user must first create it at `POST /objects`. He/She can also view list of object that they currently have (borrowed or owned and not lent) at `GET /objects`.
 
